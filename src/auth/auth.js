@@ -6,22 +6,30 @@
  * Configures Better Auth with:
  * - Email/Password authentication
  * - Google OAuth provider
- * - MongoDB as the persistence layer (official driver)
+ * - MongoDB as the persistence layer (official driver + mongodbAdapter)
  *
  * The `auth` instance is used by middleware to protect routes and by the
  * auth route handler to process sign-up, sign-in, and OAuth callbacks.
  *
- * Docs: https://www.better-auth.com/docs
+ * Docs: https://www.better-auth.com/docs/adapters/mongodb
  */
 
 import { betterAuth } from 'better-auth';
+import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { MongoClient } from 'mongodb';
 import env from '../config/env.js';
 
 /**
+ * Dedicated MongoClient for Better Auth storage.
+ * Kept separate from the app's general-purpose connection so that auth
+ * data is isolated and the client lifecycle is self-contained.
+ * The MongoDB Node.js driver (v4+) auto-connects on the first operation,
+ * so explicit .connect() is not required here.
+ */
+const authClient = new MongoClient(env.MONGODB_URI);
+
+/**
  * Initialize the Better Auth instance.
- * Uses its own MongoClient to keep auth storage independent of the app's
- * general-purpose database connection.
  */
 export const auth = betterAuth({
   // Base URL for auth callbacks (e.g., OAuth redirect)
@@ -31,9 +39,12 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
 
   // ---------------------------------------------------------------------------
-  // Database — MongoDB via the official driver
+  // Database — MongoDB via the official adapter
   // ---------------------------------------------------------------------------
-  database: new MongoClient(env.MONGODB_URI),
+  database: mongodbAdapter(authClient.db(), {
+    // Pass the MongoClient so the adapter can use transactions when needed
+    client: authClient,
+  }),
 
   // ---------------------------------------------------------------------------
   // Email & Password authentication
