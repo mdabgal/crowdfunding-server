@@ -1,0 +1,17 @@
+/**
+ * =============================================================================
+ * Health Check Routes
+ * =============================================================================
+ *
+ * GET /api/v1/health — Server and database health status
+ */
+
+import { Router } from 'express';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { getHealth } from '../controllers/health.controller.js';
+
+const router = Router();
+
+router.get('/', asyncHandler(getHealth));
+
+export default router;
