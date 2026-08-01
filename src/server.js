@@ -15,6 +15,8 @@ import app from './app.js';
 import env from './config/env.js';
 import { connectDB, disconnectDB } from './db/connection.js';
 import { createUserIndexes } from './models/user.model.js';
+import { createCampaignIndexes } from './models/campaign.model.js';
+import { ensureMinimumCampaigns } from './db/seedCampaigns.js';
 import logger from './utils/logger.js';
 
 /**
@@ -25,6 +27,8 @@ async function startServer() {
     // ── 1. Connect to MongoDB ─────────────────────────────────────────────
     await connectDB();
     await createUserIndexes();
+    await createCampaignIndexes();
+    await ensureMinimumCampaigns();
 
     // ── 2. Start HTTP server ──────────────────────────────────────────────
     const server = app.listen(env.PORT, () => {

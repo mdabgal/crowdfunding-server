@@ -3,23 +3,33 @@
  * Campaign Routes
  * =============================================================================
  *
- * Endpoints for crowdfunding campaign CRUD operations.
+ * Endpoints for crowdfunding campaign operations.
  *
- * TODO: Wire controller methods when campaign features are built.
+ * Mounted at /api/v1/campaigns in routes/index.js.
  *
- * Planned routes:
- *   POST   /api/v1/campaigns          → Create campaign
- *   GET    /api/v1/campaigns          → List campaigns (public, with filters)
- *   GET    /api/v1/campaigns/:id      → Get campaign by ID
- *   PUT    /api/v1/campaigns/:id      → Update campaign
- *   DELETE /api/v1/campaigns/:id      → Delete campaign
- *   PATCH  /api/v1/campaigns/:id/status → Update campaign status (admin)
+ * Supported public endpoints:
+ *   GET /api/v1/campaigns     → List campaigns with search, filter, pagination, sorting
+ *   GET /api/v1/campaigns/:id → Get campaign details by ID
  */
 
 import { Router } from 'express';
+import { validate } from '../middleware/validate.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import {
+  getCampaignsValidator,
+  getCampaignByIdValidator,
+} from '../validators/campaign.validator.js';
+import {
+  getCampaigns,
+  getCampaignById,
+} from '../controllers/campaign.controller.js';
 
 const router = Router();
 
-// Routes will be defined here
+// GET /api/v1/campaigns - Public listing with pagination, search, category filter, and sorting
+router.get('/', validate(getCampaignsValidator), asyncHandler(getCampaigns));
+
+// GET /api/v1/campaigns/:id - Public single campaign fetch by ID
+router.get('/:id', validate(getCampaignByIdValidator), asyncHandler(getCampaignById));
 
 export default router;

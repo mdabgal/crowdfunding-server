@@ -26,8 +26,11 @@ export function getCampaignsCollection() {
  */
 export async function createCampaignIndexes() {
   const collection = getCampaignsCollection();
-  await collection.createIndex({ status: 1 });
-  await collection.createIndex({ createdBy: 1 });
+  await collection.createIndex({ category: 1 });
   await collection.createIndex({ createdAt: -1 });
-  // TODO: Add additional indexes (e.g., text search on title/description)
+  await collection.createIndex({ deadline: 1 });
+  await collection.createIndex({ goalAmount: 1 });
+  await collection.createIndex({ title: 1 });
+  await collection.createIndex({ title: 'text' });
 }
+
